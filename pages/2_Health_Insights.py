@@ -1,24 +1,40 @@
 import streamlit as st
+import pandas as pd
 import plotly.express as px
-from utils.data_loader import load_data
+
+@st.cache_data
+def load_data():
+    return pd.read_csv(
+        "data/diabetes_012_health_indicators_BRFSS2015.csv"
+    )
 
 df = load_data()
 
 st.title("🏥 Health Insights")
 
-fig = px.histogram(
-    df,
-    x="BMI",
-    color="Diabetes_012",
-    nbins=30
-)
+# Check if BMI exists
+if "BMI" in df.columns:
 
-st.plotly_chart(fig, use_container_width=True)
+    st.subheader("BMI Distribution")
 
-fig2 = px.box(
-    df,
-    x="Diabetes_012",
-    y="BMI"
-)
+    fig = px.histogram(
+        df,
+        x="BMI",
+        nbins=30
+    )
 
-st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
+
+# Diabetes distribution
+if "Diabetes_012" in df.columns:
+
+    st.subheader("Diabetes Classes")
+
+    counts = df["Diabetes_012"].value_counts()
+
+    fig2 = px.pie(
+        values=counts.values,
+        names=counts.index
+    )
+
+    st.plotly_chart(fig2, use_container_width=True)
