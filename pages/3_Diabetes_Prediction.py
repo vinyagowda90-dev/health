@@ -1,25 +1,26 @@
 import streamlit as st
 import pandas as pd
-import joblib
+import plotly.express as px
 
-model = joblib.load("models/diabetes_model.pkl")
-
-st.title("🤖 Diabetes Risk Predictor")
-
-bmi = st.slider("BMI",10,60,25)
-age = st.slider("Age Category",1,13,5)
-genhlth = st.slider("General Health",1,5,3)
-
-if st.button("Predict"):
-    
-    sample = pd.DataFrame({
-        "BMI":[bmi],
-        "Age":[age],
-        "GenHlth":[genhlth]
-    })
-
-    prediction = model.predict(sample)
-
-    st.success(
-        f"Predicted Class : {prediction[0]}"
+@st.cache_data
+def load_data():
+    return pd.read_csv(
+        "data/diabetes_012_health_indicators_BRFSS2015.csv"
     )
+
+df = load_data()
+
+st.title("📈 Correlation Analysis")
+
+corr = df.corr(numeric_only=True)
+
+fig = px.imshow(
+    corr,
+    text_auto=False,
+    aspect="auto"
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
